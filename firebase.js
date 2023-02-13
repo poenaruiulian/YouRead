@@ -16,11 +16,21 @@ import {
   collection,
   query,
   where,
-  getDocs
+  getDocs,
+  updateDoc,
+  doc,
+  deleteDoc
 } from "firebase/firestore"
 
 //firebaseConfig goes here:
-
+const firebaseConfig = {
+  apiKey: "AIzaSyDeKHn0eeMP_UA9KcPbMmQwMI9rYPqhFHg",
+  authDomain: "youread-41080.firebaseapp.com",
+  projectId: "youread-41080",
+  storageBucket: "youread-41080.appspot.com",
+  messagingSenderId: "305131822318",
+  appId: "1:305131822318:web:1a20c7ec6bc6e5b46fa7ff"
+};
 
 
 const app = initializeApp(firebaseConfig);
@@ -36,7 +46,19 @@ async function addNewUser(username,email){
     email:email
   })
 }
+async function addBookId(mail,bookTitle,bookSubtitle,bookAuthor,pageNumber,imageLink,bookId){
 
+  await updateDoc(doc(firestore,"booksForUsers",bookId),{
+    mail:mail,
+    title:bookTitle,
+    subtitle:bookSubtitle,
+    author:bookAuthor,
+    pagesTotal:pageNumber,
+    pagesRead:0,
+    imageLink:imageLink,
+    bookId:bookId
+  })
+}
 async function addBookForUser(mail,bookTitle,bookSubtitle,bookAuthor,imageLink,pageNumber){
   const newBook = await addDoc(booksForUsers,{
     mail:mail,
@@ -45,10 +67,11 @@ async function addBookForUser(mail,bookTitle,bookSubtitle,bookAuthor,imageLink,p
     author:bookAuthor,
     pagesTotal:pageNumber,
     pagesRead:0,
-    imageLink:imageLink
-  })
+    imageLink:imageLink,
+    id:""
+  }).then(res=>addBookId(mail,bookTitle,bookSubtitle,bookAuthor,pageNumber,imageLink,res.id))
+  
 }
-
 async function getUsersBooks(mail){
   const getBooks = query(
     collection(firestore,"booksForUsers"),
@@ -59,6 +82,14 @@ async function getUsersBooks(mail){
   const querySnapshot = await getDocs(getBooks)
   const allDocs = querySnapshot.docs
   return allDocs
+}
+async function updateTotalPages(bookId,text){
+  await updateDoc(doc(firestore,"booksForUsers",bookId),{
+    pagesTotal:Number(text)
+  })
+}
+async function deleteBook(bookId){
+  await deleteDoc(doc(firestore,"booksForUsers",bookId))
 }
 
 export {
@@ -72,5 +103,7 @@ export {
     //firestore methods and functions
     addNewUser,
     addBookForUser,
-    getUsersBooks
+    getUsersBooks,
+    updateTotalPages,
+    deleteBook
 }
