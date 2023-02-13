@@ -1,19 +1,19 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import HomeScreen from "./Home"
-import Friends from "./Friends"
-import ProfileScreen from "./Profile"
+import { AddBook } from './Home';
+import { BookPage } from './Home';
 
-const Tab = createBottomTabNavigator()
+const Stack = createNativeStackNavigator()
 
 export default function AppNavigation(){
 
     return (
-        <Tab.Navigator>
-            <Tab.Screen name="HomeScreen" component={HomeScreen}/>
-            <Tab.Screen name="Friends" component={Friends}/>
-            <Tab.Screen name="ProfileScreen" component={ProfileScreen}/>
-        </Tab.Navigator>
+        <Stack.Navigator>
+            <Stack.Screen options={{headerShown:false,gestureEnabled: false,detachInactiveScreens:true}} name="HomeScreen" component={HomeScreen}/>
+            <Stack.Screen options={{headerShown:false,gestureEnabled: false,detachInactiveScreens:true}} name="AddBook" component={AddBook}/>
+            <Stack.Screen options={{headerShown:false,gestureEnabled: false,detachInactiveScreens:true}} name="BookPage" component={BookPage}/>
+        </Stack.Navigator>
     )
 
 }

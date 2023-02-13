@@ -70,10 +70,12 @@ const styles = StyleSheet.create({
         borderRadius:10,
     },
     scrollView:{
-        width:"100%"
+        width:"100%",
     },
     scrollViewContent:{
-        alignItems:"center"
+        alignItems:"center",
+        
+        
     },
     bookCard:{
         width:"90%",
@@ -120,7 +122,8 @@ const styles = StyleSheet.create({
     },
     bookPageContainer:{
         alignItems:"center",
-        width:"100%"
+        width:"100%",
+        backgroundColor:"#5c5654"
     },
     bookPageDescription:{
         width:"90%",
