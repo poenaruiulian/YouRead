@@ -132,6 +132,43 @@ const styles = StyleSheet.create({
         fontSize:20,
         fontStyle:"italic"
     },
+    weekContainer:{
+        flexDirection:"row",
+        width:"100%",
+        justifyContent:"space-around",
+        backgroundColor:"#5c5654"
+    },
+    dayContainer:{
+        alignItems:"center",
+    },
+    dayNameContainer:{
+        
+    },
+    dayNameText:{
+        padding:10,
+        fontSize:20,
+        fontWeight:"bold",
+    },
+    dayNumberContainer:{
+        backgroundColor:"gray",
+        borderRadius:20
+    },
+    dayNumberText:{
+        padding:10,
+        fontSize:15,
+        fontWeight:"bold",
+    },
+    todayText:{
+        color:"#f7603e",
+    },
+    readContainer:{
+        backgroundColor:"#ed8c66",
+    },
+    todayContainer:{
+        borderWidth:2,
+        borderColor:"#f7603e"
+    },
+
 
 })
 

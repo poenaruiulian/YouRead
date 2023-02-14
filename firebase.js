@@ -19,18 +19,12 @@ import {
   getDocs,
   updateDoc,
   doc,
-  deleteDoc
+  deleteDoc,
+  arrayUnion
 } from "firebase/firestore"
 
 //firebaseConfig goes here:
-const firebaseConfig = {
-  apiKey: "AIzaSyDeKHn0eeMP_UA9KcPbMmQwMI9rYPqhFHg",
-  authDomain: "youread-41080.firebaseapp.com",
-  projectId: "youread-41080",
-  storageBucket: "youread-41080.appspot.com",
-  messagingSenderId: "305131822318",
-  appId: "1:305131822318:web:1a20c7ec6bc6e5b46fa7ff"
-};
+
 
 
 const app = initializeApp(firebaseConfig);
@@ -39,6 +33,7 @@ const firestore = getFirestore()
 
 const usersCollection = collection(firestore,"users")
 const booksForUsers = collection(firestore,"booksForUsers")
+const readingDays = collection(firestore,"readDaysForUsers")
 
 async function addNewUser(username,email){
   const newUser = await addDoc(usersCollection,{
@@ -91,6 +86,33 @@ async function updateTotalPages(bookId,text){
 async function deleteBook(bookId){
   await deleteDoc(doc(firestore,"booksForUsers",bookId))
 }
+async function addId(){
+  await updateDoc(doc(firestore,"readDaysForUsers",id),{
+    id:id
+  })
+}
+async function addReadingDays(email){
+  await addDoc(readingDays,{
+  email:email,
+  readDays:[],
+  id:""
+  }).then(res=>addId(res.id))
+}
+async function updateReadingDays(day,id){
+  await updateDoc(doc(firestore,"readDaysForUsers",id),{
+    readDays:arrayUnion(day)
+  })
+}
+async function getReadDays(mail){
+  const getDays = query(
+    collection(firestore,"readDaysForUsers"),
+    where('email','==',mail)
+  )
+
+  const querySnapshot = await getDocs(getDays)
+  const allDocs = querySnapshot.docs
+  return allDocs
+}
 
 export {
     //authentification methods and functions
@@ -105,5 +127,8 @@ export {
     addBookForUser,
     getUsersBooks,
     updateTotalPages,
-    deleteBook
+    deleteBook,
+    addReadingDays,
+    updateReadingDays,
+    getReadDays
 }

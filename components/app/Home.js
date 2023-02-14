@@ -6,6 +6,7 @@ import {
     Dialog
 } from "react-native-ui-lib";
 
+
 import { styles } from "../../styles/styles";
 import Spacer from "../helpers/Spacer";
 import { CompletionBar } from "../helpers/CompletionBar";
@@ -87,7 +88,8 @@ export function Home(){
 
     const [books,setBooks] = useState([])
 
-    const [infoCurrReading, setCurrReading] = useState(false)
+    const [currReading, setCurrReading] = useState(false)
+    const [weeksReading, setWeeksReading] = useState(false)
 
     getUsersBooks(auth.currentUser?.email).then(res=>{
         res.map(obj=>{
@@ -106,11 +108,30 @@ export function Home(){
         <View style={[styles.container,{justifyContent:"flex-start",}]}>
             <Spacer height={30} />
 
-            <CalendarComponent/>
+            <Dialog
+                visible={weeksReading}
+                onDismiss={() => setWeeksReading(false)}
+                panDirection="DOWN"
+                overlayBackgroundColor="#f09b7d"
+                ViewStyle={{alignItems:"flex-start"}}
+                >
+                <Text style={{fontSize:20}}><Text style={{fontSize:24,fontWeight:"bold"}}>Information:</Text> The panel below shows you the days you read and the days you've not. If the day is colored then you've read in that day, else you haven't read and you should. The day that have the number colored is today.</Text>
+                <Spacer height={10}/>
+                <Text style={{fontStyle:"italic",color:"#636160"}}> *Click anywhere to exit the dialog.</Text> 
+            </Dialog>
 
+            <View style={{justifyContent:"flex-start",width:"100%",backgroundColor:"#5c5654",flexDirection:"row",alignItems:'center',paddingTop:10}}>
+                <Text style={{fontSize:20,fontWeight:"bold",paddingLeft:20,color:"white"}}>Week's reading:</Text>
+                <View style={{paddingLeft:10,color:"white"}}>
+                    <TouchableOpacity onPress={()=>setWeeksReading(true)}>
+                        <Image style={{height:20,width:20}} source={require("../../styles/images/information.png")}/>
+                    </TouchableOpacity>
+                </View>
+            </View>
+            <CalendarComponent/>
             
             <Dialog
-                visible={infoCurrReading}
+                visible={currReading}
                 onDismiss={() => setCurrReading(false)}
                 panDirection="DOWN"
                 overlayBackgroundColor="#f09b7d"
