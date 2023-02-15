@@ -20,11 +20,19 @@ import {
   updateDoc,
   doc,
   deleteDoc,
-  arrayUnion
+  arrayUnion,
+  increment
 } from "firebase/firestore"
 
 //firebaseConfig goes here:
-
+const firebaseConfig = {
+  apiKey: "AIzaSyDeKHn0eeMP_UA9KcPbMmQwMI9rYPqhFHg",
+  authDomain: "youread-41080.firebaseapp.com",
+  projectId: "youread-41080",
+  storageBucket: "youread-41080.appspot.com",
+  messagingSenderId: "305131822318",
+  appId: "1:305131822318:web:1a20c7ec6bc6e5b46fa7ff"
+};
 
 
 const app = initializeApp(firebaseConfig);
@@ -113,6 +121,11 @@ async function getReadDays(mail){
   const allDocs = querySnapshot.docs
   return allDocs
 }
+async function updateReadPages(bookId, text){
+  await updateDoc(doc(firestore,"booksForUsers",bookId),{
+    pagesRead:increment(Number(text))
+  })
+}
 
 export {
     //authentification methods and functions
@@ -130,5 +143,6 @@ export {
     deleteBook,
     addReadingDays,
     updateReadingDays,
-    getReadDays
+    getReadDays,
+    updateReadPages
 }

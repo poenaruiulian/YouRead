@@ -1,13 +1,20 @@
-import { View,Text } from "react-native"
+import { View,Text,TextInput, TouchableOpacity,Keyboard,Alert,Image } from "react-native"
 import { useState } from "react"
+import SelectDropdown from 'react-native-select-dropdown'
+import { 
+    Dialog
+} from "react-native-ui-lib";
 
 import { styles } from "../../styles/styles"
 import Spacer from "./Spacer"
 import {
     auth,
     updateReadingDays,
-    getReadDays
+    getReadDays,
+    addReadingDays,
+    updateReadPages
 } from "../../firebase"
+import { useNavigation } from "@react-navigation/native"
 
 
 function getFebDays(year){
@@ -39,8 +46,11 @@ export function Day({active,name,number,read}){
     )
 }
 
-export default function CalendarComponent(){
+export default function CalendarComponent({books}){
 
+    const navigator = useNavigation()
+
+    const [addReading,setAddReading] = useState(false)
     const [readingId, setReadingId] = useState("")
     const d = new Date()
 
@@ -126,14 +136,131 @@ export default function CalendarComponent(){
         weekDay.read = read
     })
 
-    return(
-        <View style={styles.weekContainer}>
-            {week.map(weekDay=>{
-                return(
-                    <Day active={weekDay.active} name={weekDay.name} number={weekDay.date} read={weekDay.read}/>
-                )
-            })}
+    const [bookSelected, setBookSelected] = useState("")
+    const [pagesSelected, setPagesSelected] = useState(0)
+    
 
+    return(
+        <View style={{alignItems:"center"}}>
+            <View style={styles.weekContainer}>
+                {week.map(weekDay=>{
+                    return(
+                        <Day key={weekDay.date} active={weekDay.active} name={weekDay.name} number={weekDay.date} read={weekDay.read}/>
+                    )
+                })}
+            </View>
+
+            <Spacer height={15}/>
+            
+            <View style={styles.updateReadingForm}>
+
+
+                <Dialog
+                    visible={addReading}
+                    onDismiss={() => setAddReading(false)}
+                    panDirection="DOWN"
+                    overlayBackgroundColor="#f09b7d"
+                    ViewStyle={{alignItems:"flex-start"}}
+                    >
+                    <Text style={{fontSize:20}}><Text style={{fontSize:24,fontWeight:"bold"}}>Information:</Text> By pressing <Text style={{fontStyle:"italic"}}>Select a book</Text> you can choose from wich book you've read. This is important because if you have more than one book in you library you can see how many pages you've read in total. Below you have a <Text style={{fontStyle:"italic"}}>text input</Text> where you write how many pages you've read. After completing every field click <Text style={{fontStyle:"italic"}}>Update!</Text> </Text>
+                    <Spacer height={10}/>
+                    <Text style={{fontStyle:"italic",color:"#636160"}}> *Click anywhere to exit the dialog.</Text> 
+                </Dialog>
+
+
+                <View style={{justifyContent:"flex-start",width:"100%",backgroundColor:"#5c5654",flexDirection:"row",alignItems:'center',paddingTop:10}}>
+                    <Text style={{fontSize:20,fontWeight:"bold",paddingLeft:20,color:"white"}}>Update reading:</Text>
+                    <View style={{paddingLeft:10,color:"white"}}>
+                        <TouchableOpacity onPress={()=>setAddReading(true)}>
+                            <Image style={{height:20,width:20}} source={require("../../styles/images/information.png")}/>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                <Spacer height={10}/>
+
+                <SelectDropdown 
+                    data={books.map(book=>{return book.title})}
+                    defaultButtonText="Select a book"
+                    onSelect={option => {
+                        setBookSelected(option)
+                    }}
+                    buttonStyle={styles.dropdownBtnStyle}
+                    buttonTextStyle={styles.dropdownBtnTextStyle}
+                />
+                <Spacer height={5}/>
+                <TextInput
+                    placeholder="Pages"
+                    value={pagesSelected}
+                    onChangeText={text=>setPagesSelected(text)}
+                    keyboardType="numeric"
+                    style={styles.inputBookAdding}
+                />
+                <Spacer height={5}/>
+                <TouchableOpacity
+                    style={styles.updateBtn}
+                    onPress={()=>{
+                        
+                        if(bookSelected!="" && pagesSelected!=0){
+
+                            const d = new Date()
+                            let day = parseInt(d.getDate() / 10) == 0 ? "0"+String(d.getDate()) : String(d.getDate())
+                            let month = parseInt((d.getMonth()+1) / 10) == 0 ? "0"+String(d.getMonth()+1) : String(d.getMonth()+1)
+                            let year = String(d.getFullYear())
+                            let today = day+"_"+month+"_"+year
+                            
+                            day = Number(day)
+                            month = Number(month)
+                            year = Number(year)
+
+                            let ok = true
+
+                            week.map(weekDay=>{
+                                if(weekDay.day == day && weekDay.month == month && weekDay.year == year && weekDay.read == true){
+                                    ok = false
+                                }
+                            })
+                            
+                            if(ok){
+                                updateReadingDays(today,readingId)
+                            }
+
+                            books.map(book=>{
+                                if(book.title == bookSelected){
+                                    updateReadPages(book.bookId, pagesSelected)
+                                }   
+                            })
+                            
+
+                            Alert.alert(
+                                "Congrats!",
+                                "Today you read another "+pagesSelected+" pages from "+bookSelected,
+                                [
+                                    {
+                                        text:"Nice!",
+                                        style:"default",
+                                        onPress:()=>{
+                                            navigator.replace("HomeScreen")
+                                        }
+                                    }
+                                ]
+                            )
+                        }else if(bookSelected=="" && pagesSelected==0){
+                            alert("You can't submit an empty form!")
+                        }
+                        else if(bookSelected==""){
+                            alert("You can't submit with no book!")
+                        }else if(pagesSelected==0){
+                            alert("You can't submit 0 pages")
+                        }
+
+                        setPagesSelected(0)
+                        Keyboard.dismiss()
+                    }}
+                >
+                    <Text style={{fontSize:16,fontWeight:"bold"}}>Update!</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     )
 

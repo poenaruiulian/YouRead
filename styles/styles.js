@@ -135,8 +135,8 @@ const styles = StyleSheet.create({
     weekContainer:{
         flexDirection:"row",
         width:"100%",
-        justifyContent:"space-around",
-        backgroundColor:"#5c5654"
+        justifyContent:"space-evenly",
+        backgroundColor:"#5c5654",
     },
     dayContainer:{
         alignItems:"center",
@@ -168,6 +168,37 @@ const styles = StyleSheet.create({
         borderWidth:2,
         borderColor:"#f7603e"
     },
+    updateReadingForm:{
+        flexDirection:"column",
+        alignItems:"center",
+        justifyContent:"flex-start",
+        backgroundColor:"#5c5654",
+        width:"90%",
+        padding:15,
+        borderRadius:10
+    },
+    dropdownBtnStyle:{
+        backgroundColor:"#f5ad69",
+        borderRadius:10,
+    },
+    dropdownBtnTextStyle:{
+        fontWeight:'700',
+        fontSize:16,
+    },
+    inputBookAdding:{
+        width:150,
+        height:30,
+        backgroundColor:"gray",
+        borderBottomWidth:2,
+        fontSize:16
+    },
+    updateBtn:{
+        backgroundColor:"orange",
+        alignItems:"center",
+        width:"60%",
+        padding:5,
+        borderRadius:10,
+    }
 
 
 })
