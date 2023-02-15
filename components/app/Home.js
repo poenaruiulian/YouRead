@@ -6,6 +6,7 @@ import {
     Dialog
 } from "react-native-ui-lib";
 
+
 import { styles } from "../../styles/styles";
 import Spacer from "../helpers/Spacer";
 import { CompletionBar } from "../helpers/CompletionBar";
@@ -87,7 +88,8 @@ export function Home(){
 
     const [books,setBooks] = useState([])
 
-    const [infoCurrReading, setCurrReading] = useState(false)
+    const [currReading, setCurrReading] = useState(false)
+    const [weeksReading, setWeeksReading] = useState(false)
 
     getUsersBooks(auth.currentUser?.email).then(res=>{
         res.map(obj=>{
@@ -103,63 +105,84 @@ export function Home(){
     })
 
     return (
-        <View style={[styles.container,{justifyContent:"flex-start",}]}>
-            <Spacer height={30} />
+        <View style={{height:"100%",width:"100%",backgroundColor:"#2e2b2a"}}>
+            <ScrollView contentContainerStyle={[styles.container,{justifyContent:"flex-start",backgroundColor:"#2e2b2a"}]}>
 
-            <CalendarComponent/>
+                <Spacer height={30}/>
+                <Dialog
+                    visible={weeksReading}
+                    onDismiss={() => setWeeksReading(false)}
+                    panDirection="DOWN"
+                    overlayBackgroundColor="#f09b7d"
+                    ViewStyle={{alignItems:"flex-start"}}
+                    >
+                    <Text style={{fontSize:20}}><Text style={{fontSize:24,fontWeight:"bold"}}>Information:</Text> The panel below shows you the days you read and the days you've not. If the day is colored then you've read in that day, else you haven't read and you should. The day that have the number colored is today.</Text>
+                    <Spacer height={10}/>
+                    <Text style={{fontStyle:"italic",color:"#636160"}}> *Click anywhere to exit the dialog.</Text> 
+                </Dialog>
 
-            
-            <Dialog
-                visible={infoCurrReading}
-                onDismiss={() => setCurrReading(false)}
-                panDirection="DOWN"
-                overlayBackgroundColor="#f09b7d"
-                ViewStyle={{alignItems:"flex-start"}}
-                >
-                <Text style={{fontSize:20}}><Text style={{fontSize:24,fontWeight:"bold"}}>Information:</Text> This is your library. Here you can see all you book that you are currently reading. By clicking on any of them it will show some info about the book. If you want to add more books in your library just press <Text style={{fontStyle:"italic"}}> Add Book </Text>.</Text>
-                <Spacer height={10}/>
-                <Text style={{fontStyle:"italic",color:"#636160"}}> *Click anywhere to exit the dialog.</Text> 
-            </Dialog>
-
-            <Spacer height={20}/>
-            <View style={{justifyContent:"flex-start",width:"100%",backgroundColor:"#5c5654",flexDirection:"row",alignItems:'center',paddingTop:10}}>
-                <Text style={{fontSize:20,fontWeight:"bold",paddingLeft:20,color:"white"}}>Currently reading:</Text>
-                <View style={{paddingLeft:10,color:"white"}}>
-                    <TouchableOpacity onPress={()=>setCurrReading(true)}>
-                        <Image style={{height:20,width:20}} source={require("../../styles/images/information.png")}/>
-                    </TouchableOpacity>
+                <View style={{justifyContent:"flex-start",width:"100%",backgroundColor:"#5c5654",flexDirection:"row",alignItems:'center',paddingTop:10}}>
+                    <Text style={{fontSize:20,fontWeight:"bold",paddingLeft:20,color:"white"}}>Week's reading:</Text>
+                    <View style={{paddingLeft:10,color:"white"}}>
+                        <TouchableOpacity onPress={()=>setWeeksReading(true)}>
+                            <Image style={{height:20,width:20}} source={require("../../styles/images/information.png")}/>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
-            <View style={{height:"20%",width:"100%",backgroundColor:"#5c5654"}}>
-                <ScrollView style={[styles.scrollView,{backgroundColor:"#5c5654"}]} contentContainerStyle={styles.scrollViewContent}>
-                    {books.map(book=>{
-                        return(
-                            <View key={book.bookId} style={{width:"100%",alignItems:"center"}}>
-                                <Spacer height={20}/>
-                                <Reading 
-                                    title={book.title} 
-                                    imageLink={book.imageLink} 
-                                    pagesTotal={book.pagesTotal} 
-                                    pagesRead={book.pagesRead}
-                                    subtitle={book.subtitle}
-                                    authors={book.author}
-                                    bookId={book.bookId}/>
-                                <Spacer height={20}/>
-                            </View>
-                        )
-                    })}
-                </ScrollView>
-            </View>
+                <CalendarComponent books={books}/>
 
-            <Spacer height={10} />
+                <Dialog
+                    visible={currReading}
+                    onDismiss={() => setCurrReading(false)}
+                    panDirection="DOWN"
+                    overlayBackgroundColor="#f09b7d"
+                    ViewStyle={{alignItems:"flex-start"}}
+                    >
+                    <Text style={{fontSize:20}}><Text style={{fontSize:24,fontWeight:"bold"}}>Information:</Text> This is your library. Here you can see all you book that you are currently reading. By clicking on any of them it will show some info about the book. If you want to add more books in your library just press <Text style={{fontStyle:"italic"}}> Add Book </Text>.</Text>
+                    <Spacer height={10}/>
+                    <Text style={{fontStyle:"italic",color:"#636160"}}> *Click anywhere to exit the dialog.</Text> 
+                </Dialog>
 
-            <TouchableOpacity
-                onPress={()=>{
-                    navigator.navigate("AddBook", {currReading:books})}}
-                style={[styles.entryPageButton,{marginTop:10}]}
-            >
-                <Text style={styles.entryPageText}>Add book</Text>
-            </TouchableOpacity>
+                <Spacer height={15}/>
+                <View style={{justifyContent:"flex-start",width:"100%",backgroundColor:"#5c5654",flexDirection:"row",alignItems:'center',paddingTop:10}}>
+                    <Text style={{fontSize:20,fontWeight:"bold",paddingLeft:20,color:"white"}}>Currently reading:</Text>
+                    <View style={{paddingLeft:10,color:"white"}}>
+                        <TouchableOpacity onPress={()=>setCurrReading(true)}>
+                            <Image style={{height:20,width:20}} source={require("../../styles/images/information.png")}/>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                <View style={{height:"20%",width:"100%",backgroundColor:"#5c5654"}}>
+                    <ScrollView showsVerticalScrollIndicator={true} horizontal={true} style={[styles.scrollView,{backgroundColor:"#5c5654"}]} contentContainerStyle={styles.scrollViewContent}>
+                        {books.map(book=>{
+                            return(
+                                <View key={book.bookId} style={{width:300,alignItems:"center"}}>
+                                    <Spacer height={20}/>
+                                    <Reading 
+                                        title={book.title} 
+                                        imageLink={book.imageLink} 
+                                        pagesTotal={book.pagesTotal} 
+                                        pagesRead={book.pagesRead}
+                                        subtitle={book.subtitle}
+                                        authors={book.author}
+                                        bookId={book.bookId}/>
+                                    <Spacer height={20}/>
+                                </View>
+                            )
+                        })}
+                    </ScrollView>
+                </View>
+
+                <Spacer height={5} />
+
+                <TouchableOpacity
+                    onPress={()=>{
+                        navigator.navigate("AddBook", {currReading:books})}}
+                    style={[styles.entryPageButton,{marginTop:10}]}
+                >
+                    <Text style={styles.entryPageText}>Add book</Text>
+                </TouchableOpacity>
+            </ScrollView>
         </View>
     )
 }
@@ -306,7 +329,7 @@ export function Reading({title,imageLink,pagesTotal,pagesRead,subtitle,authors,b
             <View style={styles.bookInfo}>
                 <Text style={{fontWeight:"bold"}}>{title}</Text>
                 <Spacer height={5}/>
-                <View style={{width:200}}>
+                <View style={{width:"65%"}}>
                     <CompletionBar total={pagesTotal} completed={pagesRead}/>
                 </View>
                 
@@ -457,9 +480,9 @@ export function BookPage({route}){
 export default function HomeScreen(){
     return(
         <Tab.Navigator>
-            <Tab.Screen name="Home" component={Home}/>
-            <Tab.Screen name="Friends" component={Friends}/>
-            <Tab.Screen name="ProfileScreen" component={ProfileScreen}/>
+            <Tab.Screen options={{headerShown:false}} name="Home" component={Home}/>
+            <Tab.Screen options={{headerShown:false}} name="Friends" component={Friends}/>
+            <Tab.Screen options={{headerShown:false}} name="ProfileScreen" component={ProfileScreen}/>
         </Tab.Navigator>
     )
 }
