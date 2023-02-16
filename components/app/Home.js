@@ -189,6 +189,8 @@ export function Home(){
 
 export function AddBook({route}){
 
+    const navigator = useNavigation()
+
     const [isFetching, setIsFetching] = useState(false)
     const [books, setBooks] = useState([])
     const [title, setTitle] = useState("")
@@ -220,14 +222,26 @@ export function AddBook({route}){
             {
                 isFetching ?
                 <ActivityIndicator size="large"/> :
-                <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
-                    {books.map(book=>{
-                        return(
-                        <Book title={book.title} subtitle={book.subtitle} authors={book.authors} pageCount={book.pageCount} imageLink={book.imageLink} currReading={route.params.currReading}/>)
-                    })}
-                </ScrollView>
+                
+                
+                    books.length > 0 ?
+                        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
+                            {books.map(book=>{
+                                return(
+                                <Book title={book.title} subtitle={book.subtitle} authors={book.authors} pageCount={book.pageCount} imageLink={book.imageLink} currReading={route.params.currReading}/>)
+                            })}
+                        </ScrollView> :
+                        <View style={{alignItems:"center"}}>
+                            <Spacer height={30}/>
+                            <TouchableOpacity
+                                onPress = {()=>{navigator.navigate("AddBookManually")}}
+                            >
+                                <Text style={{fontSize:17,fontWeight:"bold"}}>Add book manually</Text>
+                            </TouchableOpacity>
+                            <Spacer height={10}/>
+                            <Text style={{fontStyle:"italic",color:"gray"}}>*If you can't find a book try adding manually.</Text>
+                        </View>
             }
-
         </View>
     )
 
@@ -473,6 +487,14 @@ export function BookPage({route}){
                 </Text>
                 <Spacer height={100}/>
             </ScrollView>
+        </View>
+    )
+}
+
+export function AddBookManually(){
+    return(
+        <View>
+            <Text>Hello</Text>
         </View>
     )
 }
