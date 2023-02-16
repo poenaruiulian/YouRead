@@ -240,7 +240,7 @@ export default function CalendarComponent({books}){
                                         text:"Nice!",
                                         style:"default",
                                         onPress:()=>{
-                                            navigator.replace("HomeScreen")
+                                            //navigator.replace("HomeScreen")
                                         }
                                     }
                                 ]

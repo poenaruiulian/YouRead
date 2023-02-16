@@ -1,7 +1,7 @@
-import { View,Text, TouchableOpacity, TextInput, ActivityIndicator, ScrollView, Image, Alert } from "react-native";
+import { View,Text, TouchableOpacity, TextInput, ActivityIndicator, ScrollView, Image, Alert,Keyboard,RefreshControl } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
-import {useState} from "react"
+import {useEffect, useState} from "react"
 import { 
     Dialog
 } from "react-native-ui-lib";
@@ -91,7 +91,9 @@ export function Home(){
     const [currReading, setCurrReading] = useState(false)
     const [weeksReading, setWeeksReading] = useState(false)
 
+    
     getUsersBooks(auth.currentUser?.email).then(res=>{
+        let auxList = books
         res.map(obj=>{
             let newBook = obj.data()
             let ok = false
@@ -99,15 +101,32 @@ export function Home(){
                 if(books[i].title==newBook.title){ok=true}
             }
             if(!ok){
-                setBooks([...books,newBook])
+                    auxList=[...auxList,newBook]
             }
         })
+        setBooks(auxList)
     })
+   
+
 
     return (
         <View style={{height:"100%",width:"100%",backgroundColor:"#2e2b2a"}}>
-            <ScrollView contentContainerStyle={[styles.container,{justifyContent:"flex-start",backgroundColor:"#2e2b2a"}]}>
-
+            
+            <ScrollView 
+                refreshControl={
+                    <RefreshControl onRefresh={()=>{
+                        getUsersBooks(auth.currentUser?.email).then(res=>{
+                            let auxList = []
+                            res.map(obj=>{
+                                let newBook = obj.data()
+                                auxList=[...auxList,newBook]
+                            })
+                            setBooks(auxList)
+                        })
+                }}/>
+                }
+                contentContainerStyle={[styles.container,{justifyContent:"flex-start",backgroundColor:"#2e2b2a"}]}>
+                
                 <Spacer height={30}/>
                 <Dialog
                     visible={weeksReading}
@@ -152,6 +171,7 @@ export function Home(){
                         </TouchableOpacity>
                     </View>
                 </View>
+
                 <View style={{height:"20%",width:"100%",backgroundColor:"#5c5654"}}>
                     <ScrollView showsVerticalScrollIndicator={true} horizontal={true} style={[styles.scrollView,{backgroundColor:"#5c5654"}]} contentContainerStyle={styles.scrollViewContent}>
                         {books.map(book=>{
@@ -197,12 +217,12 @@ export function AddBook({route}){
 
 
     return(
-        <View style={[styles.container,{justifyContent:"flex-start",}]}>
+        <View style={[styles.container,{justifyContent:"flex-start",backgroundColor:"#2e2b2a"}]}>
             <Header dest="HomeScreen"/>
             <Spacer height={10}/>
             <View style={styles.headerAddBook}>
                 <TextInput
-                    style={[styles.input]}
+                    style={[styles.input,{backgroundColor:"gray"}]}
                     placeholder="   Search for a new book..."
                     value={title}
                     onChangeText={text=>setTitle(text)}
@@ -213,6 +233,7 @@ export function AddBook({route}){
                         setBooks([])
                         searchBook(title,books,setBooks,setIsFetching)
                         setTitle("")
+                        Keyboard.dismiss()
                     }}
                 >
                     <Text>Search</Text>
@@ -234,7 +255,7 @@ export function AddBook({route}){
                         <View style={{alignItems:"center"}}>
                             <Spacer height={30}/>
                             <TouchableOpacity
-                                onPress = {()=>{navigator.navigate("AddBookManually")}}
+                                onPress = {()=>{navigator.navigate("AddBookManually",{currReading:route.params.currReading})}}
                             >
                                 <Text style={{fontSize:17,fontWeight:"bold"}}>Add book manually</Text>
                             </TouchableOpacity>
@@ -248,6 +269,9 @@ export function AddBook({route}){
 }
 
 export function Book({title,subtitle,authors,pageCount,imageLink,currReading}){
+
+    const navigator = useNavigation()
+
     return(
         <View style={styles.bookCard}>
             <View style={styles.bookDescription}>
@@ -313,6 +337,7 @@ export function Book({title,subtitle,authors,pageCount,imageLink,currReading}){
                             pageCount 
                         )
                         alert("Enjoy your reading!")
+                        navigator.pop()
                     }else{alert("You read this book already or you are reading it at the moment!")}
                 }}
             >
@@ -491,10 +516,107 @@ export function BookPage({route}){
     )
 }
 
-export function AddBookManually(){
+export function AddBookManually({route}){
+
+    const navigator = useNavigation()
+
+    const [title, setTitle] = useState("")
+    const [subtitle, setSubtitle] = useState("")
+    //const [authors, setAuthors] = useState([])
+    const [singleAuthor,setSingleAuthor] = useState("")
+    const [pagesTotal, setPagesTotal] = useState(0)
+    const [imageLink, setImageLink] = useState("https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8Ym9va3xlbnwwfHwwfHw%3D&w=1000&q=80")
+
     return(
-        <View>
-            <Text>Hello</Text>
+        <View style={{backgroundColor:"#5c5654",height:"100%"}}>
+            <Header dest="AddBook"/>
+            <Spacer height={10}/>
+            <ScrollView contentContainerStyle={styles.bookPageContainer}>
+                <View style={styles.bookPageDescription}>
+
+                    <Spacer height={20}/>
+
+                    <Text style={[styles.bookCardCategory, {fontSize:30}]}>Title:</Text>
+                    <TextInput
+                        value={title}
+                        placeholder={"  Complete with book title"}
+                        style={styles.addBookManualyInput}
+                        onChangeText={text=>{setTitle(text)}}
+
+                    />
+                    
+                    <Spacer height={10}/>
+                    
+                    <Text style={[styles.bookCardCategory, {fontSize:30}]}>Subtitle:</Text>
+                    <TextInput
+                        value={subtitle}
+                        placeholder={"  Complete with book subtite or leave blank"}
+                        style={styles.addBookManualyInput}
+                        onChangeText={text=>{setSubtitle(text)}}
+                    />    
+                    
+                    <Spacer height={10}/>
+
+                    <Text style={[styles.bookCardCategory, {fontSize:30}]}>Author:</Text>
+                    <TextInput
+                        value={singleAuthor}
+                        placeholder={"  Complete with book author or leave blank"}
+                        style={styles.addBookManualyInput}
+                        onChangeText={text=>{
+                            setSingleAuthor(text)
+                        }}
+                    />
+
+                    <Spacer height={20}/>
+
+                    <View style={{width:"100%", flexDirection:"row"}}>
+                        <Text style={[styles.bookCardCategory, {fontSize:20}]}>Total page number:</Text>
+                        <View style={{width:10}}></View>
+                        <TextInput
+                            value={pagesTotal}
+                            keyboardType="numeric"
+                            placeholder={"  Pages"}
+                            style={[styles.inputBookAdding,{width:100,borderRadius:10,borderBottomWidth:0}]}
+                            onChangeText={text=>setPagesTotal(Number(text))}
+                        />
+                    </View>
+                    <Spacer height={10}/>
+
+                    {/* <View style={{width:"100%", alignItems:"center"}}>
+                        <Image style={{height:300,width:200}} source={{uri:imageLink}}/>
+                    </View> */}
+
+                    <TouchableOpacity
+                        style={styles.entryPageButton}
+                        onPress={()=>{
+                            Keyboard.dismiss()
+                            if(title !=0 && pagesTotal!=0){
+                                let ok = false
+                                for(let i=0;i<route.params.currReading.length;i+=1){
+                                    if(route.params.currReading[i].title == title){ok=true}
+                                }
+                                if(ok != true){
+                                    if(subtitle==undefined){setSubtitle("")}
+                                    //if(authors==undefined){setAuthors([])}
+                                    addBookForUser(
+                                        auth.currentUser?.email,
+                                        title,
+                                        subtitle,
+                                        [singleAuthor],
+                                        imageLink,
+                                        pagesTotal
+                                    )
+                                    navigator.pop("HomeScreen")
+                                    alert("Enjoy your reading!")
+                                }else{alert("You read this book already or you are reading it at the moment!")}
+                            }else{alert("You can't leave the title and/or total pages input blank!")}
+                        }}
+                    >
+                        <Text style={[styles.entryPageText,{color:"black"}]}>Start to read!</Text>
+                    </TouchableOpacity> 
+                    
+                </View>
+            </ScrollView>
         </View>
     )
 }

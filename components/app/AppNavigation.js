@@ -14,7 +14,7 @@ export default function AppNavigation(){
             <Stack.Screen options={{headerShown:false,gestureEnabled: false,detachInactiveScreens:true}} name="HomeScreen" component={HomeScreen}/>
             <Stack.Screen options={{headerShown:false,gestureEnabled: false,detachInactiveScreens:true}} name="AddBook" component={AddBook}/>
             <Stack.Screen options={{headerShown:false,gestureEnabled: false,detachInactiveScreens:true}} name="BookPage" component={BookPage}/>
-            <Stack.Screen options={{headerShown:false,detachInactiveScreens:true}} name="AddBookManually" component={AddBookManually}/>
+            <Stack.Screen options={{headerShown:false,gestureEnabled: false,detachInactiveScreens:true}} name="AddBookManually" component={AddBookManually}/>
         </Stack.Navigator>
     )
 

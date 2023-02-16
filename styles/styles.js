@@ -191,6 +191,7 @@ const styles = StyleSheet.create({
         backgroundColor:"gray",
         borderBottomWidth:2,
         fontSize:16
+        
     },
     updateBtn:{
         backgroundColor:"orange",
@@ -198,6 +199,12 @@ const styles = StyleSheet.create({
         width:"60%",
         padding:5,
         borderRadius:10,
+    },
+    addBookManualyInput:{
+        backgroundColor:"gray",
+        height:30,
+        fontSize:16,
+        borderRadius:10
     }
 
 

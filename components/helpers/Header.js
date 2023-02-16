@@ -15,7 +15,7 @@ export default function Header({dest}){
         }}>
             <Spacer height={25}/>
             <TouchableOpacity
-                onPress={()=>{navigator.replace(dest)}}
+                onPress={()=>{navigator.pop()}}
             >
                 <Image source={require("../../styles/images/back_arrow.png")}
                     style={{
