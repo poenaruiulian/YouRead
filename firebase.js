@@ -42,6 +42,7 @@ const firestore = getFirestore()
 const usersCollection = collection(firestore,"users")
 const booksForUsers = collection(firestore,"booksForUsers")
 const readingDays = collection(firestore,"readDaysForUsers")
+const usesrStatsColection = collection(firestore,"usersStats")
 
 async function addNewUser(username,email){
   const newUser = await addDoc(usersCollection,{
@@ -94,7 +95,7 @@ async function updateTotalPages(bookId,text){
 async function deleteBook(bookId){
   await deleteDoc(doc(firestore,"booksForUsers",bookId))
 }
-async function addId(){
+async function addId(id){
   await updateDoc(doc(firestore,"readDaysForUsers",id),{
     id:id
   })
@@ -126,7 +127,45 @@ async function updateReadPages(bookId, text){
     pagesRead:increment(Number(text))
   })
 }
+async function getUsername(email){
+  const getUsrnm = query(
+    collection(firestore,"users"),
+    where("email","==",email)
+  )
 
+  const querySnapshot = await getDocs(getUsrnm)
+  const allDocs = querySnapshot.docs
+  return allDocs
+}
+async function updateIdOfStats(id){
+  await updateDoc(doc(firestore,"usersStats",id),{
+    id:id
+  })
+}
+async function addUserStats(email){
+  await addDoc(usesrStatsColection,{
+    email:email,
+    booksReadTotal:0,
+    pagesReadTotal:0,
+    currentStrike:0,
+    maxStrike:0,
+    id:""
+  }).then(res=>updateIdOfStats(res.id))
+}
+async function getUserStatsId(email){
+  const userStatsId = query(
+    collection(firestore,"usersStats"),
+    where("email","==",email)
+  )
+  const querySnapshot = await getDocs(userStatsId)
+  const allDocs = querySnapshot.docs
+  return allDocs
+}
+async function updateTotalPagesStats(statsId,text){
+  await updateDoc(doc(firestore,"usersStats",statsId),{
+    pagesReadTotal:increment(Number(text))
+  })
+}
 export {
     //authentification methods and functions
     auth,
@@ -144,5 +183,10 @@ export {
     addReadingDays,
     updateReadingDays,
     getReadDays,
-    updateReadPages
+    updateReadPages,
+    getUsername,
+    addUserStats,
+    getUserStatsId,
+    updateTotalPagesStats
+
 }

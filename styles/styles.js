@@ -205,7 +205,23 @@ const styles = StyleSheet.create({
         height:30,
         fontSize:16,
         borderRadius:10
+    },
+    profileName:{
+        fontSize:22,
+        fontWeight:"bold",
+        padding:10
+    },
+    profileSettingsBtn:{
+        height:35,
+        width:35,
+    },
+    profileHeader:{
+        width:"100%",
+        flexDirection:"row",
+        justifyContent:"space-between",
+        backgroundColor:"#f5ad69"
     }
+
 
 
 })

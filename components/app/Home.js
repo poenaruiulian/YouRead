@@ -15,11 +15,12 @@ import {
     addBookForUser,
     getUsersBooks,
     updateTotalPages,
-    deleteBook
+    deleteBook,
+    getUserStatsId
 } from "../../firebase";
 
 import Friends from "./Friends"
-import ProfileScreen from "./Profile"
+import Profile from "./Profile"
 import Header from "../helpers/Header";
 import CalendarComponent from "../helpers/CalendarComponent";
 const Tab = createBottomTabNavigator()
@@ -86,6 +87,8 @@ export function Home(){
 
     const navigator = useNavigation()
 
+    const [userStatsId, setUserStatsId] = useState("")
+
     const [books,setBooks] = useState([])
 
     const [currReading, setCurrReading] = useState(false)
@@ -106,6 +109,12 @@ export function Home(){
         })
         setBooks(auxList)
     })
+
+    getUserStatsId(auth.currentUser?.email).then(res=>{
+        let aux = res[0].data().id
+        setUserStatsId(aux)
+    })
+
    
 
 
@@ -122,6 +131,10 @@ export function Home(){
                                 auxList=[...auxList,newBook]
                             })
                             setBooks(auxList)
+                        })
+                        getUserStatsId(auth.currentUser?.email).then(res=>{
+                            let aux = res[0].data().id
+                            setUserStatsId(aux)
                         })
                 }}/>
                 }
@@ -148,7 +161,7 @@ export function Home(){
                         </TouchableOpacity>
                     </View>
                 </View>
-                <CalendarComponent books={books}/>
+                <CalendarComponent books={books} userStatsId={userStatsId}/>
 
                 <Dialog
                     visible={currReading}
@@ -626,7 +639,7 @@ export default function HomeScreen(){
         <Tab.Navigator>
             <Tab.Screen options={{headerShown:false}} name="Home" component={Home}/>
             <Tab.Screen options={{headerShown:false}} name="Friends" component={Friends}/>
-            <Tab.Screen options={{headerShown:false}} name="ProfileScreen" component={ProfileScreen}/>
+            <Tab.Screen options={{headerShown:false}} name="Profile" component={Profile}/>
         </Tab.Navigator>
     )
 }

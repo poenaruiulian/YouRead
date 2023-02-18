@@ -9,7 +9,8 @@ import {
     createUserWithEmailAndPassword,
     addNewUser,
     onAuthStateChanged,
-    addReadingDays
+    addReadingDays,
+    addUserStats
 } from "../../firebase"
 import Spacer from "../helpers/Spacer";
 
@@ -36,6 +37,7 @@ export default function Register(){
             console.log("Registered with "+user.email)
             addNewUser(username,email)
             addReadingDays(email)
+            addUserStats(email)
             setEmail("")
             setPassword("")
             setUsername("")

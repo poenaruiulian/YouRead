@@ -11,8 +11,8 @@ import {
     auth,
     updateReadingDays,
     getReadDays,
-    addReadingDays,
-    updateReadPages
+    updateReadPages,
+    updateTotalPagesStats
 } from "../../firebase"
 import { useNavigation } from "@react-navigation/native"
 
@@ -46,7 +46,11 @@ export function Day({active,name,number,read}){
     )
 }
 
-export default function CalendarComponent({books}){
+export default function CalendarComponent({books, userStatsId}){
+
+
+    userStatsId = userStatsId.split(" ").join("")
+
 
     const navigator = useNavigation()
 
@@ -223,6 +227,7 @@ export default function CalendarComponent({books}){
                             
                             if(ok){
                                 updateReadingDays(today,readingId)
+                                updateTotalPagesStats(userStatsId,pagesSelected)
                             }
 
                             books.map(book=>{
