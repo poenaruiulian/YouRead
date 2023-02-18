@@ -1,10 +1,16 @@
 import { View,Text, TouchableOpacity, Image } from "react-native";
 import {useNavigation} from "@react-navigation/core"
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import {useState} from "react"
 
 import { styles } from "../../styles/styles";
-import {signOut,auth} from "../../firebase"
+import {
+    signOut,
+    auth,
+    getUsername
+} from "../../firebase"
 import Spacer from "../helpers/Spacer";
+
 
 const Stack = createNativeStackNavigator()
 
@@ -37,15 +43,29 @@ export function Profile(){
 
     const navigation = useNavigation()
 
+    const [username, setUsername] = useState("")
+
+    getUsername(auth.currentUser?.email).then(res=>{
+        let aux = res[0].data().username
+        setUsername(aux)
+    })
+
     return (
-        <View style={styles.container}>
-            <TouchableOpacity
-                onPress={()=>{navigation.navigate("Settings")}}
-            >
-                <Image source={require("../../styles/images/settings.png")}  style={styles.imageIcons}/>
-            </TouchableOpacity>
-            <Spacer height={50}/>
-            <Text>{auth.currentUser?.email}</Text>
+        <View style={[styles.container,{justifyContent:"flex-start"}]}>
+            <Spacer height={40}/>
+            <View style={styles.profileHeader}>
+
+                <Text style={styles.profileName}>{username}</Text>
+
+                <TouchableOpacity
+                    style={{padding:10}}
+                    onPress={()=>{navigation.navigate("Settings")}}
+                >
+                    <Image source={require("../../styles/images/settings.png")}  style={styles.profileSettingsBtn}/>
+                </TouchableOpacity>
+
+            </View>
+            
         </View>
     )
 }
