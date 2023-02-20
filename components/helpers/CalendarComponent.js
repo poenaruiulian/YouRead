@@ -48,10 +48,6 @@ export function Day({active,name,number,read}){
 
 export default function CalendarComponent({books, userStatsId}){
 
-
-    userStatsId = userStatsId.split(" ").join("")
-
-
     const navigator = useNavigation()
 
     const [addReading,setAddReading] = useState(false)
@@ -140,9 +136,10 @@ export default function CalendarComponent({books, userStatsId}){
         weekDay.read = read
     })
 
-    const [bookSelected, setBookSelected] = useState("")
+    const [bookSelected, setBookSelected] = useState("Select a book")
     const [pagesSelected, setPagesSelected] = useState(0)
     
+
 
     return(
         <View style={{alignItems:"center"}}>
@@ -186,6 +183,7 @@ export default function CalendarComponent({books, userStatsId}){
                 <SelectDropdown 
                     data={books.map(book=>{return book.title})}
                     defaultButtonText="Select a book"
+                    buttonTextAfterSelection={()=>{return bookSelected}}
                     onSelect={option => {
                         setBookSelected(option)
                     }}
@@ -196,7 +194,20 @@ export default function CalendarComponent({books, userStatsId}){
                 <TextInput
                     placeholder="Pages"
                     value={pagesSelected}
-                    onChangeText={text=>setPagesSelected(text)}
+                    onChangeText={text=>{
+                        
+                        res = ""
+                        ok = true
+                        books.map(book=>{
+                            if(book.title == bookSelected && Number(text)>(book.pagesTotal-book.pagesRead)){
+                                alert("Verify your pages read! You can't read more pages from a book than the book have.")
+                                res=""
+                                ok = false
+                            }
+                        })
+                        if(ok){res=text}
+                        setPagesSelected(res)
+                    }}
                     keyboardType="numeric"
                     style={styles.inputBookAdding}
                 />
@@ -225,17 +236,22 @@ export default function CalendarComponent({books, userStatsId}){
                                 }
                             })
                             
-                            if(ok){
-                                updateReadingDays(today,readingId)
-                                updateTotalPagesStats(userStatsId,pagesSelected)
-                            }
+
 
                             books.map(book=>{
                                 if(book.title == bookSelected){
+                                    if(ok){
+                                        updateReadingDays(today,readingId)
+                                        
+                                    }
+
                                     updateReadPages(book.bookId, pagesSelected)
-                                }   
+                                    updateTotalPagesStats(userStatsId,pagesSelected)
+
+                                    setBookSelected("Select a book")
+
+                                }  
                             })
-                            
 
                             Alert.alert(
                                 "Congrats!",
@@ -250,6 +266,7 @@ export default function CalendarComponent({books, userStatsId}){
                                     }
                                 ]
                             )
+                            
                         }else if(bookSelected=="" && pagesSelected==0){
                             alert("You can't submit an empty form!")
                         }

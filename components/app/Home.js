@@ -16,7 +16,9 @@ import {
     getUsersBooks,
     updateTotalPages,
     deleteBook,
-    getUserStatsId
+    getUserStatsId,
+    updateTotalPagesStatsLess,
+    updateTotalBooksRead
 } from "../../firebase";
 
 import Friends from "./Friends"
@@ -94,6 +96,10 @@ export function Home(){
     const [currReading, setCurrReading] = useState(false)
     const [weeksReading, setWeeksReading] = useState(false)
 
+    getUserStatsId(auth.currentUser?.email).then(res=>{
+        let aux = res[0].data().id
+        setUserStatsId(aux)
+    })
     
     getUsersBooks(auth.currentUser?.email).then(res=>{
         let auxList = books
@@ -107,13 +113,10 @@ export function Home(){
                     auxList=[...auxList,newBook]
             }
         })
-        setBooks(auxList)
+        if(books!=auxList){setBooks(auxList)}
     })
 
-    getUserStatsId(auth.currentUser?.email).then(res=>{
-        let aux = res[0].data().id
-        setUserStatsId(aux)
-    })
+
 
    
 
@@ -128,7 +131,13 @@ export function Home(){
                             let auxList = []
                             res.map(obj=>{
                                 let newBook = obj.data()
-                                auxList=[...auxList,newBook]
+                                if(newBook.pagesTotal != newBook.pagesRead){
+                                    auxList=[...auxList,newBook]
+                                }else{
+                                    alert("Congrats! You've finished "+newBook.title)
+                                    updateTotalBooksRead(userStatsId)
+                                    deleteBook(newBook.bookId)
+                                }
                             })
                             setBooks(auxList)
                         })
@@ -161,7 +170,10 @@ export function Home(){
                         </TouchableOpacity>
                     </View>
                 </View>
+
+
                 <CalendarComponent books={books} userStatsId={userStatsId}/>
+
 
                 <Dialog
                     visible={currReading}
@@ -198,7 +210,9 @@ export function Home(){
                                         pagesRead={book.pagesRead}
                                         subtitle={book.subtitle}
                                         authors={book.author}
-                                        bookId={book.bookId}/>
+                                        bookId={book.bookId}
+                                        userStatsId={userStatsId}
+                                        />
                                     <Spacer height={20}/>
                                 </View>
                             )
@@ -361,7 +375,7 @@ export function Book({title,subtitle,authors,pageCount,imageLink,currReading}){
     )
 }
 
-export function Reading({title,imageLink,pagesTotal,pagesRead,subtitle,authors,bookId}){
+export function Reading({title,imageLink,pagesTotal,pagesRead,subtitle,authors,bookId,userStatsId}){
     
     const navigator = useNavigation()
 
@@ -374,7 +388,8 @@ export function Reading({title,imageLink,pagesTotal,pagesRead,subtitle,authors,b
                 pagesTotal:pagesTotal,
                 pagesRead:pagesRead,
                 imageLink:imageLink,
-                bookId:bookId
+                bookId:bookId,
+                userStatsId:userStatsId
             })}
             style={styles.readingBookContainer}>
             <Image style={{height:60,width:40}} source={{uri:imageLink}}/>
@@ -470,6 +485,7 @@ export function BookPage({route}){
                                         text:"YES",
                                         style:"destructive",
                                         onPress:()=>{
+                                            updateTotalPagesStatsLess(route.params.userStatsId,route.params.pagesRead)
                                             deleteBook(route.params.bookId)
                                             navigator.replace("HomeScreen")
                                             alert("You stoped reading "+route.params.title+"! :( ")
@@ -502,6 +518,7 @@ export function BookPage({route}){
                                         text:"Edit",
                                         onPress:(text)=>{
                                             updateTotalPages(route.params.bookId,text)
+                                            
                                             navigator.replace("HomeScreen")
                                             alert("Total pages of "+route.params.title+" edited with succes!")
                                         },
