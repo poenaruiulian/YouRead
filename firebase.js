@@ -162,10 +162,29 @@ async function getUserStatsId(email){
   return allDocs
 }
 async function updateTotalPagesStats(statsId,text){
+  
+  statsId = statsId.split(" ").join("")
+
   await updateDoc(doc(firestore,"usersStats",statsId),{
     pagesReadTotal:increment(Number(text))
   })
 }
+async function updateTotalPagesStatsLess(statsId,text){
+
+  statsId = statsId.split(" ").join("")
+
+  await updateDoc(doc(firestore,"usersStats",statsId),{
+    pagesReadTotal:increment((-1)*Number(text))
+  })
+}
+async function updateTotalBooksRead(statsId){
+  statsId = statsId.split(" ").join("")
+
+  await updateDoc(doc(firestore,"usersStats",statsId),{
+    booksReadTotal:increment(1)
+  })
+}
+
 export {
     //authentification methods and functions
     auth,
@@ -187,6 +206,8 @@ export {
     getUsername,
     addUserStats,
     getUserStatsId,
-    updateTotalPagesStats
+    updateTotalPagesStats,
+    updateTotalPagesStatsLess,
+    updateTotalBooksRead
 
 }
