@@ -248,6 +248,9 @@ export default function CalendarComponent({books, userStatsId}){
                                     updateReadPages(book.bookId, pagesSelected)
                                     updateTotalPagesStats(userStatsId,pagesSelected)
 
+                                    if(book.pagesRead+pagesSelected == book.pagesTotal){
+                                        alert("Congrats! You've finished "+book.title)
+                                    }
                                     setBookSelected("Select a book")
 
                                 }  

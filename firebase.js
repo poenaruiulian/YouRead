@@ -108,6 +108,9 @@ async function addReadingDays(email){
   }).then(res=>addId(res.id))
 }
 async function updateReadingDays(day,id){
+  console.log(id)
+  id = id.split(" ").join("")
+
   await updateDoc(doc(firestore,"readDaysForUsers",id),{
     readDays:arrayUnion(day)
   })
@@ -123,6 +126,7 @@ async function getReadDays(mail){
   return allDocs
 }
 async function updateReadPages(bookId, text){
+
   await updateDoc(doc(firestore,"booksForUsers",bookId),{
     pagesRead:increment(Number(text))
   })
