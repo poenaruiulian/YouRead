@@ -220,7 +220,18 @@ const styles = StyleSheet.create({
         flexDirection:"row",
         justifyContent:"space-between",
         backgroundColor:"#f5ad69"
-    }
+    },
+    completeBookBtn:{
+        flexDirection:"row",
+        padding:10,
+        backgroundColor:"#6bbd68",
+        alignItems:"center",
+        borderRadius:10
+    },
+    completeBookText:{
+        fontSize:15,
+        fontWeight:"bold"
+    },
 
 
 
