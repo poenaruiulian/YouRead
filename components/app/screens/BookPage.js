@@ -15,7 +15,12 @@ import {
     deleteBook,
     updateReadPages,
     getReadDays,
-    updateReadingDays 
+    updateReadingDays,
+    updateCurrentStrike,
+    updateMaxStrike,
+    resetCurrentStrike,
+    verifyDay,
+    getUserStatsId 
 } from "../../../firebase"
 
 export default function BookPage({route}){
@@ -23,21 +28,39 @@ export default function BookPage({route}){
     const navigator = useNavigation()
 
     const [readingId, setReadingId] = useState("")
-    const [todayRead, setTodayRead] = useState(false)
+    const [readToday, setReadToday] = useState(false)
+    const [readYest, setReadYest] = useState(true)
+
+    const [currentStrike,setCurrentStrike] = useState(0)
+    const [maxStrike,setMaxStrike] = useState(0)
+
+    const d = new Date()
+    let day = parseInt(d.getDate() / 10) == 0 ? "0"+String(d.getDate()) : String(d.getDate())
+    let month = parseInt((d.getMonth()+1) / 10) == 0 ? "0"+String(d.getMonth()+1) : String(d.getMonth()+1)
+    let year = String(d.getFullYear())
+    let today = day+"_"+month+"_"+year
+
+    verifyDay(readingId,today).then(res=>{setReadToday(res)})
+
+
+
+    getUserStatsId(auth.currentUser?.email).then(res=>{
+        setCurrentStrike(res[0].data().currentStrike)
+    })
+    getUserStatsId(auth.currentUser?.email).then(res=>{
+        setMaxStrike(res[0].data().maxStrike)
+    })
 
     getReadDays(auth.currentUser?.email)
     .then(res=>{
-        console.log(res[0].data().id)
         setReadingId(res[0].data().id)
-        res[0].data().readDays.map(day=>{
-            if(day == today){
-                setTodayRead(true)
-            }
-        })
     })
 
+
+
+
     return(
-        <View style={{backgroundColor:"#5c5654"}}>
+        <View key={route.params.bookId} style={{backgroundColor:"#5c5654"}}>
             <Header dest="HomeScreen"/>
             <Spacer height={10}/>
             <ScrollView contentContainerStyle={styles.bookPageContainer}>
@@ -53,6 +76,7 @@ export default function BookPage({route}){
                     <TouchableOpacity 
                         style={styles.completeBookBtn}
                         onPress={()=>{
+
                             Alert.alert(
                                 "Finished the book?",
                                 "If you are sure you finished the book just press Yes",
@@ -64,17 +88,56 @@ export default function BookPage({route}){
                                     {
                                         text:"Yes",
                                         onPress:()=>{
+
                                             updateTotalPagesStats(route.params.userStatsId,route.params.pagesTotal-route.params.pagesRead)
                                             updateReadPages(route.params.bookId,route.params.pagesTotal)
-                                            
+
                                             const d = new Date()
                                             let day = parseInt(d.getDate() / 10) == 0 ? "0"+String(d.getDate()) : String(d.getDate())
                                             let month = parseInt((d.getMonth()+1) / 10) == 0 ? "0"+String(d.getMonth()+1) : String(d.getMonth()+1)
                                             let year = String(d.getFullYear())
                                             let today = day+"_"+month+"_"+year
 
-                                            if(!todayRead){
+                                            day = Number(day)
+                                            month = Number(month)
+                                            year = Number(year)
+
+                                            if(day-1<1){
+                                                if(month-1<1){
+                                                    year-=1
+                                                    month=12
+                                                }else{
+                                                    month-=1
+                                                }
+        
+                                                let daysOfMonth = new Date(year,month,0).getDate()
+                                                daysOfMonth+=day
+                                                day = daysOfMonth-1
+                                            }else{
+                                                day-=1
+                                            }
+        
+                                            day = parseInt(day / 10) == 0 ? "0"+String(day) : String(day)
+                                            month = parseInt((month) / 10) == 0 ? "0"+String(month) : String(month)
+                                            year = String(year)
+                                            let date = day+"_"+month+"_"+year
+
+                                            verifyDay(readingId,date).then(res=>setReadYest(res))
+
+                                            if(!readYest){
+                                                resetCurrentStrike(route.params.userStatsId)
+                                                setCurrentStrike(0)
+                                            }
+
+                                            if(readToday == false){
                                                 updateReadingDays(today,readingId)
+                                                updateCurrentStrike(route.params.userStatsId)
+                                                setCurrentStrike(currentStrike+1)
+        
+                                                if(currentStrike>maxStrike){
+                                                    updateMaxStrike(route.params.userStatsId,currentStrike)
+                                                    setMaxStrike(currentStrike)
+                                                }
                                             }
 
                                             alert("Congrats! You've finished "+route.params.title)

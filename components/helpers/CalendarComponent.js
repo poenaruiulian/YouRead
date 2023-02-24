@@ -12,7 +12,12 @@ import {
     updateReadingDays,
     getReadDays,
     updateReadPages,
-    updateTotalPagesStats
+    updateTotalPagesStats,
+    getUserStatsId,
+    updateCurrentStrike,
+    updateMaxStrike,
+    resetCurrentStrike,
+    verifyDay
 } from "../../firebase"
 import { useNavigation } from "@react-navigation/native"
 
@@ -48,11 +53,60 @@ export function Day({active,name,number,read}){
 
 export default function CalendarComponent({books, userStatsId}){
 
-    const navigator = useNavigation()
-
     const [addReading,setAddReading] = useState(false)
     const [readingId, setReadingId] = useState("")
+
+    const [readToday, setReadToday] = useState(false)
+    const [readYest, setReadYest] = useState(true)
+
+
+    const [currentStrike,setCurrentStrike] = useState(0)
+    const [maxStrike,setMaxStrike] = useState(0)
+
+
+    getUserStatsId(auth.currentUser?.email).then(res=>{
+        setCurrentStrike(res[0].data().currentStrike)
+    })
+    getUserStatsId(auth.currentUser?.email).then(res=>{
+        setMaxStrike(res[0].data().maxStrike)
+    })
+
     const d = new Date()
+    let day = parseInt(d.getDate() / 10) == 0 ? "0"+String(d.getDate()) : String(d.getDate())
+    let month = parseInt((d.getMonth()+1) / 10) == 0 ? "0"+String(d.getMonth()+1) : String(d.getMonth()+1)
+    let year = String(d.getFullYear())
+    let today = day+"_"+month+"_"+year
+
+    verifyDay(readingId,today).then(res=>{setReadToday(res)})
+
+    day = Number(day)
+    month = Number(month)
+    year = Number(year)
+
+    if(day-1<1){
+        if(month-1<1){
+            year-=1
+            month=12
+        }else{
+            month-=1
+        }
+
+        let daysOfMonth = new Date(year,month,0).getDate()
+        daysOfMonth+=day
+        day = daysOfMonth-1
+    }else{
+        day-=1
+    }
+
+    day = parseInt(day / 10) == 0 ? "0"+String(day) : String(day)
+    month = parseInt((month) / 10) == 0 ? "0"+String(month) : String(month)
+    year = String(year)
+    let date = day+"_"+month+"_"+year
+
+    verifyDay(readingId,date).then(res=>setReadYest(res))
+
+
+  
 
     let week = [
         {name:"M",date:1,month:1,year:1,day:1,active:false,read:false},
@@ -89,6 +143,9 @@ export default function CalendarComponent({books, userStatsId}){
 
     let actualDay = todayDay != 0 ? todayDate-todayDay : todayDate-7
     
+
+    
+
     week.map(weekDay=>{
        weekDay.date = weekDay.date + actualDay
        weekDay.month = currMonth
@@ -108,31 +165,28 @@ export default function CalendarComponent({books, userStatsId}){
         if(weekDay.day == todayDay && weekDay.date == todayDate){
             weekDay.active = true
         }
-        
 
         const [read, setRead] = useState(false)
-        
+
         getReadDays(auth.currentUser?.email)
         .then(res=>{
             
             setReadingId(res[0].data().id)
             res[0].data().readDays.map(day=>{
-                
-                dayAux = day.split("_")
-                for(let i =0;i<dayAux.length;i+=1){
-                    dayAux[i] = Number(dayAux[i])
-                }
 
-                
-
-                if(dayAux[0]==weekDay.date && dayAux[1]==weekDay.month && dayAux[2]==weekDay.year){
-                    setRead(true)
-                }
-
+                    dayAux = day.split("_")
+                    
+                    for(let i =0;i<dayAux.length;i+=1){
+                        dayAux[i] = Number(dayAux[i])
+                    }
+                    
+                    if(dayAux[0]==weekDay.date && dayAux[1]==weekDay.month && dayAux[2]==weekDay.year){
+                        setRead(true)
+                        
+                    }
             })
             
         })
-
         weekDay.read = read
     })
 
@@ -163,7 +217,7 @@ export default function CalendarComponent({books, userStatsId}){
                     overlayBackgroundColor="#f09b7d"
                     ViewStyle={{alignItems:"flex-start"}}
                     >
-                    <Text style={{fontSize:20}}><Text style={{fontSize:24,fontWeight:"bold"}}>Information:</Text> By pressing <Text style={{fontStyle:"italic"}}>Select a book</Text> you can choose from wich book you've read. This is important because if you have more than one book in you library you can see how many pages you've read in total. Below you have a <Text style={{fontStyle:"italic"}}>text input</Text> where you write how many pages you've read. After completing every field click <Text style={{fontStyle:"italic"}}>Update!</Text> </Text>
+                    <Text style={{fontSize:20}}><Text style={{fontSize:24,fontWeight:"bold"}}>Information:</Text> By pressing <Text style={{fontStyle:"italic"}}>Select a book</Text> you can choose from wich book you've read. This is important because if you have more than one book in you library you can see how many pages you've read in total. Below you have a <Text style={{fontStyle:"italic"}}>text input</Text> where you write the page you are at. After completing every field click <Text style={{fontStyle:"italic"}}>Update!</Text> </Text>
                     <Spacer height={10}/>
                     <Text style={{fontStyle:"italic",color:"#636160"}}> *Click anywhere to exit the dialog.</Text> 
                 </Dialog>
@@ -186,21 +240,27 @@ export default function CalendarComponent({books, userStatsId}){
                     buttonTextAfterSelection={()=>{return bookSelected}}
                     onSelect={option => {
                         setBookSelected(option)
+                        books.map(book=>{
+                            if(book.title == option && pagesSelected>book.pagesTotal){
+                                alert("Verify your pages read! You can't read more pages from a book than the book have.")
+                                setPagesSelected("")
+                            }
+                        })
                     }}
                     buttonStyle={styles.dropdownBtnStyle}
                     buttonTextStyle={styles.dropdownBtnTextStyle}
                 />
                 <Spacer height={5}/>
                 <TextInput
-                    placeholder="Pages"
+                    placeholder="Page"
                     value={pagesSelected}
                     onChangeText={text=>{
                         
-                        res = ""
-                        ok = true
+                        let res = ""
+                        let ok = true
                         books.map(book=>{
-                            if(book.title == bookSelected && Number(text)>(book.pagesTotal-book.pagesRead)){
-                                alert("Verify your pages read! You can't read more pages from a book than the book have.")
+                            if(book.title == bookSelected && Number(text)>book.pagesTotal){
+                                alert("Verify your page! You can't read more pages from a book than the book have.")
                                 res=""
                                 ok = false
                             }
@@ -218,31 +278,26 @@ export default function CalendarComponent({books, userStatsId}){
                         
                         if(bookSelected!="" && pagesSelected!=0){
 
-                            const d = new Date()
-                            let day = parseInt(d.getDate() / 10) == 0 ? "0"+String(d.getDate()) : String(d.getDate())
-                            let month = parseInt((d.getMonth()+1) / 10) == 0 ? "0"+String(d.getMonth()+1) : String(d.getMonth()+1)
-                            let year = String(d.getFullYear())
-                            let today = day+"_"+month+"_"+year
-                            
-                            day = Number(day)
-                            month = Number(month)
-                            year = Number(year)
-
-                            let ok = true
-
-                            week.map(weekDay=>{
-                                if(weekDay.day == day && weekDay.month == month && weekDay.year == year && weekDay.read == true){
-                                    ok = false
-                                }
-                            })
-                            
-
-
+                        
                             books.map(book=>{
                                 if(book.title == bookSelected){
-                                    if(ok){
+                                    if(!readToday){
+
+                                        if(!readYest){
+                                            resetCurrentStrike(userStatsId)
+                                            setCurrentStrike(0)
+                                        }
+
                                         updateReadingDays(today,readingId)
-                                        
+                                        updateCurrentStrike(userStatsId)
+                                        setCurrentStrike(currentStrike+1)
+
+                                        if(currentStrike>maxStrike){
+                                            updateMaxStrike(userStatsId,currentStrike)
+                                            setMaxStrike(currentStrike)
+                                        }
+
+                                        setReadToday(true)
                                     }
 
                                     updateReadPages(book.bookId, pagesSelected)
@@ -258,7 +313,7 @@ export default function CalendarComponent({books, userStatsId}){
 
                             Alert.alert(
                                 "Congrats!",
-                                "Today you read another "+pagesSelected+" pages from "+bookSelected,
+                                "Today you reached page "+pagesSelected+" from "+bookSelected,
                                 [
                                     {
                                         text:"Nice!",
