@@ -108,7 +108,6 @@ async function addReadingDays(email){
   }).then(res=>addId(res.id))
 }
 async function updateReadingDays(day,id){
-  console.log(id)
   id = id.split(" ").join("")
 
   await updateDoc(doc(firestore,"readDaysForUsers",id),{
@@ -128,7 +127,7 @@ async function getReadDays(mail){
 async function updateReadPages(bookId, text){
 
   await updateDoc(doc(firestore,"booksForUsers",bookId),{
-    pagesRead:increment(Number(text))
+    pagesRead:Number(text)
   })
 }
 async function getUsername(email){
@@ -188,7 +187,49 @@ async function updateTotalBooksRead(statsId){
     booksReadTotal:increment(1)
   })
 }
+async function updateCurrentStrike(statsId){
+  statsId = statsId.split(" ").join("")
 
+  await updateDoc(doc(firestore,"usersStats",statsId),{
+    currentStrike:increment(1)
+  })
+}
+async function updateMaxStrike(statsId,text){
+  statsId = statsId.split(" ").join("")
+
+  await updateDoc(doc(firestore,"usersStats",statsId),{
+    maxStrike:Number(text)
+  })
+}
+async function resetCurrentStrike(statsId){
+  statsId = statsId.split(" ").join("")
+
+  await updateDoc(doc(firestore,"usersStats",statsId),{
+    currentStrike:0
+  })
+}
+async function verifyDay(id,day){
+  const userDay = query(
+    collection(firestore,"readDaysForUsers"),
+    where("id","==",id)
+  )
+  const querySnapshot = await getDocs(userDay)
+  const allDocs = querySnapshot.docs
+  try{allDocs[0].data().readDays.map(readDay=>{
+    if(readDay==day){return true}
+    console.log("passed")
+  })}catch{console.log("error")}
+  return false
+}
+async function getStats(email){
+  const userStats = query(
+    collection(firestore,"usersStats"),
+    where("email","==",email)
+  )
+  const querySnapshot = await getDocs(userStats)
+  const allDocs = querySnapshot.docs
+  return allDocs[0].data()
+}
 export {
     //authentification methods and functions
     auth,
@@ -212,6 +253,11 @@ export {
     getUserStatsId,
     updateTotalPagesStats,
     updateTotalPagesStatsLess,
-    updateTotalBooksRead
+    updateTotalBooksRead,
+    updateCurrentStrike,
+    updateMaxStrike,
+    resetCurrentStrike,
+    verifyDay,
+    getStats
 
 }

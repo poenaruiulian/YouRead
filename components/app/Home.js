@@ -178,7 +178,7 @@ export default function HomeScreen(){
         <Tab.Navigator>
             <Tab.Screen options={{headerShown:false}} name="Home" component={Home}/>
             <Tab.Screen options={{headerShown:false}} name="Friends" component={Friends}/>
-            <Tab.Screen options={{headerShown:false}} name="Profile" component={ProfileScreen}/>
+            <Tab.Screen options={{headerShown:false}} name="ProfileScreen" component={ProfileScreen}/>
         </Tab.Navigator>
     )
 }

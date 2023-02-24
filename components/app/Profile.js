@@ -7,7 +7,8 @@ import { styles } from "../../styles/styles";
 import {
     signOut,
     auth,
-    getUsername
+    getUsername,
+    getStats
 } from "../../firebase"
 import Spacer from "../helpers/Spacer";
 
@@ -44,15 +45,22 @@ export function Profile(){
     const navigation = useNavigation()
 
     const [username, setUsername] = useState("")
+    const [stats, setStats] = useState({})
+    const [getting,setGetting] = useState(true)
 
     getUsername(auth.currentUser?.email).then(res=>{
         let aux = res[0].data().username
         setUsername(aux)
     })
-
+    if(getting){
+        getStats(auth.currentUser?.email).then(res=>{
+            if(stats!=res){setStats(res)}
+        })
+        setGetting(false)
+    }
     return (
         <View style={[styles.container,{justifyContent:"flex-start"}]}>
-            <Spacer height={40}/>
+            <Spacer height={20}/>
             <View style={styles.profileHeader}>
 
                 <Text style={styles.profileName}>{username}</Text>
@@ -64,6 +72,15 @@ export function Profile(){
                     <Image source={require("../../styles/images/settings.png")}  style={styles.profileSettingsBtn}/>
                 </TouchableOpacity>
 
+            </View>
+
+            <Spacer height={40}/>
+
+            <View>
+                <Text>Books read: {stats.booksReadTotal}</Text>
+                <Text>Pages read: {stats.pagesReadTotal}</Text>
+                <Text>Current strike: {stats.currentStrike}</Text>
+                <Text>Max strike: {stats.maxStrike}</Text>
             </View>
             
         </View>
