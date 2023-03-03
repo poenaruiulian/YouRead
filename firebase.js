@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //authentification methods and functions
 import {
@@ -8,6 +9,11 @@ import {
     onAuthStateChanged,
     signOut
 } from "firebase/auth"
+
+import {
+  initializeAuth,
+  getReactNativePersistence
+} from 'firebase/auth/react-native';
 
 //firestore -- database methods and functions
 import {
@@ -36,7 +42,9 @@ const firebaseConfig = {
 
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app)
+const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage)
+});
 const firestore = getFirestore()
 
 const usersCollection = collection(firestore,"users")

@@ -22,7 +22,7 @@ export default function EntryScreen(){
     })
 
     return(
-        <View style={[styles.container,{justifyContent:"flex-start"}]}>
+        <View style={[styles.container,{justifyContent:"flex-start",backgroundColor:"#2e2b2a"}]}>
             <Spacer height={100}/>
             <Image style={styles.entryScreenLogo} source={require("../../styles/images/entryScreenLogo.png")}/>
             <Spacer height={100}/>

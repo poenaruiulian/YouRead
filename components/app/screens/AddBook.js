@@ -107,7 +107,7 @@ export default function AddBook({route}){
                         <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
                             {books.map(book=>{
                                 return(
-                                <Book title={book.title} subtitle={book.subtitle} authors={book.authors} pageCount={book.pageCount} imageLink={book.imageLink} currReading={route.params.currReading}/>)
+                                <Book key={book.title} title={book.title} subtitle={book.subtitle} authors={book.authors} pageCount={book.pageCount} imageLink={book.imageLink} currReading={route.params.currReading}/>)
                             })}
                         </ScrollView> :
                         <View style={{alignItems:"center"}}>

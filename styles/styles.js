@@ -19,12 +19,12 @@ const styles = StyleSheet.create({
         borderRadius:10,
     },
     entryPageText:{
-        color:'white',
+        color:'gray',
         fontWeight:'700',
         fontSize:16,
     },
     outlineButton:{
-        backgroundColor:"white",
+        backgroundColor:"gray",
         marginTop:5,
         borderColor:"orange",
         borderWidth:2
@@ -37,10 +37,10 @@ const styles = StyleSheet.create({
     inputContainer:{
         width:"80%",
         justifyContent:"center",
-        alignItems:"center"
+        alignItems:"center",
     },
     authInput:{
-        backgroundColor:"white",
+        backgroundColor:"#f5ad69",
         width:"100%",
         paddingHorizontal:15,
         paddingVertical:10,
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     },
     bookAuthor:{
         padding:2,
-        borderRadius:"50%"        
+        borderRadius:20       
     },
     bookCardCategory:{
         fontSize:15,
@@ -232,7 +232,15 @@ const styles = StyleSheet.create({
         fontSize:15,
         fontWeight:"bold"
     },
-
+    statsText:{
+        fontSize:24,
+        color:"#f5ad69"
+    },
+    profilePicContainer:{
+        backgroundColor:"gray",
+        borderRadius:50,
+        height:100
+    },
 
 
 })
