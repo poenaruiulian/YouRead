@@ -5,6 +5,7 @@ import {useState} from "react"
 import { 
     Dialog
 } from "react-native-ui-lib";
+import { Ionicons } from '@expo/vector-icons'; 
 
 
 import { styles } from "../../styles/styles";
@@ -20,7 +21,7 @@ import {
 } from "../../firebase";
 
 import Friends from "./Friends"
-import ProfileScreen from "./Profile"
+import Profile from "./Profile"
 import CalendarComponent from "../helpers/CalendarComponent";
 
 const Tab = createBottomTabNavigator()
@@ -175,10 +176,29 @@ export function Home(){
 
 export default function HomeScreen(){
     return(
-        <Tab.Navigator>
-            <Tab.Screen options={{headerShown:false}} name="Home" component={Home}/>
-            <Tab.Screen options={{headerShown:false}} name="Friends" component={Friends}/>
-            <Tab.Screen options={{headerShown:false}} name="ProfileScreen" component={ProfileScreen}/>
+        <Tab.Navigator
+            screenOptions={() => ({
+            tabBarStyle: {
+                backgroundColor: '#5c5654',
+            },
+            tabBarActiveTintColor:'orange',
+            tabBarInactiveTintColor:'gray'
+        })}>
+            <Tab.Screen  
+            options={{
+                headerShown:false,
+                tabBarIcon: ({focused, color, size}) =>
+                <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color}/>  ,
+            }} 
+            name="Home" component={Home}/>
+            {/* <Tab.Screen options={{headerShown:false}} name="Friends" component={Friends}/> */}
+            <Tab.Screen 
+            options={{
+                headerShown:false,
+                tabBarIcon: ({focused, color, size}) =>
+                <Ionicons name={focused ? 'person' : 'person-outline'} size={size} color={color}/>  ,
+            }}            
+            name="Profile" component={Profile}/>
         </Tab.Navigator>
     )
 }

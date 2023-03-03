@@ -176,7 +176,7 @@ export default function BookPage({route}){
                     <View>
                         {route.params.authors.map(author=>{
                             return(
-                                <Text style={styles.bookPageText}>-{author}</Text>
+                                <Text key={author} style={styles.bookPageText}>-{author}</Text>
                             )
                         })}
                     </View>:

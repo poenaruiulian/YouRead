@@ -140,13 +140,13 @@ export default function CalendarComponent({books, userStatsId}){
     let todayDate = d.getDate()
     let todayDay = d.getDay()
     let currMonth = d.getMonth() + 1
-
     let actualDay = todayDay != 0 ? todayDate-todayDay : todayDate-7
     
 
     
 
     week.map(weekDay=>{
+       
        weekDay.date = weekDay.date + actualDay
        weekDay.month = currMonth
        weekDay.year = currYear
@@ -160,6 +160,14 @@ export default function CalendarComponent({books, userStatsId}){
                 }
                 else{weekDay.date -= months[i].days}
             }
+       }
+
+       if(weekDay.date <= 0){
+        for(let i = 0;i<months.length;i+=1){
+            if(weekDay.month == months[i].monthNumber){
+                weekDay.date = months[i-1].days+weekDay.date;
+            }
+       }
        }
 
         if(weekDay.day == todayDay && weekDay.date == todayDate){

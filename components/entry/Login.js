@@ -36,7 +36,7 @@ export default function Login(){
     }
 
     return(
-        <View style={styles.container}>
+        <View style={[styles.container,{backgroundColor:"#2e2b2a"}]}>
             <View style={styles.inputContainer}>
                 <TextInput
                     style={styles.authInput}
